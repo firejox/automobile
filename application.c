@@ -27,11 +27,14 @@ typedef struct {
     gint64 clock;
 } appbakend_data_t;
 
+
+
 static void mobile_info_update (appbakend_data_t *);
 static void button_toggled (GtkWidget *, gpointer);
 static void set_mobile_info (GtkButtonBox*, appbakend_data_t*);
 static gboolean update (GtkWidget *widget, GdkFrameClock *frame,
         gpointer user_data);
+static void reset_data (GtkWidget *widget, gpointer user_data);
 
 void application_init (GtkApplication *app, void *user_data) {
     GtkWidget *window;
@@ -40,6 +43,7 @@ void application_init (GtkApplication *app, void *user_data) {
     
     appbakend_data_t *b_data = xcalloc (1, sizeof (appbakend_data_t));
     b_data->p = *data;
+    b_data->clock = 0;
 
     window = gtk_application_window_new (app);
     gtk_window_set_title (GTK_WINDOW(window), "steer control");
@@ -126,17 +130,29 @@ void set_mobile_info (GtkButtonBox *bbox, appbakend_data_t *b_data) {
         gtk_box_pack_start (GTK_BOX(bbox), b_data->sensor[i],
                 TRUE, TRUE, 0);
     }
-
+    
     b_data->steer_angle = gtk_label_new ("");
     gtk_box_pack_start (GTK_BOX(bbox), b_data->steer_angle, 
             TRUE, TRUE, 0);
 
-    b_data->start_stop_btn = gtk_toggle_button_new_with_label (
-            "media-playback-start");
+    box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_button_box_set_layout (GTK_BUTTON_BOX(box), GTK_BUTTONBOX_SPREAD);
+    gtk_box_pack_start (GTK_BOX(bbox), box, TRUE, TRUE, 0);
 
-    gtk_box_pack_start (GTK_BOX(bbox), b_data->start_stop_btn,
+    b_data->start_stop_btn = gtk_toggle_button_new_with_label (
+            "Start");
+    GtkWidget *im = gtk_image_new_from_icon_name (
+            "media-playback-start", GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_image (b_data->start_stop_btn, im);
+    gtk_box_pack_start (GTK_BOX(box), b_data->start_stop_btn,
             TRUE, TRUE, 0);
 
+    GtkWidget *reset_btn = gtk_button_new_from_icon_name (
+            "media-playback-stop", GTK_ICON_SIZE_BUTTON);
+    gtk_button_set_label (GTK_BUTTON(reset_btn), "Reset");
+    g_signal_connect (reset_btn, "clicked", reset_data, b_data);
+    gtk_box_pack_start (GTK_BOX(box), reset_btn,
+            TRUE, TRUE, 0);
 
     g_signal_connect (b_data->start_stop_btn, "toggled", 
             button_toggled, b_data);
@@ -158,25 +174,22 @@ static gboolean update (GtkWidget *widget, GdkFrameClock *frame,
     gint64 cur_clock = gdk_frame_clock_get_frame_time (frame);
     appbakend_data_t *data = user_data;
 
+    if (!data->clock) 
+        mobile_info_update (data);
+
     if (data->clock + 100000 <= cur_clock) {
         if (world_get_state(data->p.w) == WORLD_TIME_RUNNING) {
             point_t pos = mobile_get_pos (data->p.mob);
 
-            if (is_mobile_out_of_world(data->p.mob) || pos.y > 37.0) {
-                gtk_toggle_button_set_active (data->start_stop_btn, FALSE);
-
-                fprintf (stderr, "x : %lf y: %lf\n", pos.x, pos.y);
-            }
+            if (is_mobile_out_of_world(data->p.mob) || pos.y > 37.0) 
+                gtk_toggle_button_set_active (data->start_stop_btn, FALSE); 
             else
                 mobile_update (data->p.mob,
                         steer_control_get_angle, data->p.con);
 
-            canvas_draw (user_data);
-
             mobile_info_update (data);
-
-            gtk_widget_queue_draw (data->darea);
         }
+
         data->clock = cur_clock;
     }
 
@@ -187,6 +200,8 @@ static void mobile_info_update (appbakend_data_t *data) {
     char s[32];
     point_t pos = mobile_get_pos (data->p.mob);
 
+    canvas_draw (data);
+    
     snprintf (s, sizeof (s), "%lf", pos.x);
     gtk_entry_set_text (data->x, s);
 
@@ -218,6 +233,8 @@ static void mobile_info_update (appbakend_data_t *data) {
             radian_to_degree(
                 steer_control_get_angle(data->p.con), -M_PI_2));
     gtk_label_set_text (data->steer_angle, s);
+    
+    gtk_widget_queue_draw (data->darea);
 }
 
 static void manual_change_mobile_x (GtkWidget *w, gpointer data) {
@@ -229,10 +246,6 @@ static void manual_change_mobile_x (GtkWidget *w, gpointer data) {
         .x = atof (gtk_entry_get_text(entry)),
         .y = pos.y
     };
-
-
-
-    fprintf (stderr, "new pos : %lf %lf \n", new_pos.x, new_pos.y);
 
     mobile_set_pos (b_data->p.mob, new_pos);
 
@@ -268,16 +281,35 @@ static void manual_change_mobile_toward_theta (GtkWidget *w, gpointer data) {
 static void button_toggled (GtkWidget *w, gpointer data) {
     GtkToggleButton *btn = (GtkToggleButton*)w;
     application_data_t *b_data = (application_data_t*) data;
+    GtkWidget *im = gtk_button_get_image (GTK_BUTTON(btn));
 
     if (gtk_toggle_button_get_active(btn)) {
         world_set_state(b_data->w, WORLD_TIME_RUNNING);
 
-        gtk_button_set_label(btn, "media-playbck-pause");
+        gtk_button_set_label (btn, "Pause");
+        gtk_image_set_from_icon_name (GTK_IMAGE(im),
+                "media-playback-pause",
+                GTK_ICON_SIZE_BUTTON);
     } else {
         world_set_state(b_data->w, WORLD_TIME_STOP);
 
-        gtk_button_set_label(btn, "media-playbck-start");
+        gtk_button_set_label (btn, "Start");
+        gtk_image_set_from_icon_name (GTK_IMAGE(im),
+                "media-playback-start",
+                GTK_ICON_SIZE_BUTTON);
     }
 
 }
 
+
+static void reset_data (GtkWidget *w, gpointer user_data) {
+    appbakend_data_t *data = user_data;
+    point_t pos = {0, 0};
+
+    mobile_set_pos (data->p.mob, pos);
+    mobile_set_toward_theta (data->p.mob, M_PI_2);
+
+    canvas_clean_track(user_data);
+
+    mobile_info_update(data); 
+}

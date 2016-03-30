@@ -16,10 +16,10 @@ void canvas_draw_track (application_data_t *a_data) {
 
     assert (data);
 
-    if (data->track) {
+    if (data->track && world_get_state(data->p.w) == WORLD_TIME_RUNNING) {
         cairo_t *cr = cairo_create(data->track);
         cairo_translate (cr, 100, 100);
-        cairo_scale (cr, 5.0, 5.0);
+        cairo_scale (cr, 8.0, 8.0);
         point_t pos = mobile_get_pos(data->p.mob);
         
         cairo_set_source_rgb (cr, 0.0, 0.0, 1.0);
@@ -44,13 +44,13 @@ void canvas_draw (application_data_t *a_data) {
         cairo_paint (cr);
         cairo_restore (cr);
 
-        cairo_translate (cr, 100.0, 300.0);
+        cairo_translate (cr, 200.0, 400.0);
 
         cairo_scale (cr, 1.0, -1.0);
         cairo_set_source_surface(cr, data->track, -100.0, -100.0);
         cairo_paint (cr);
 
-        cairo_scale (cr, 5.0, 5.0);
+        cairo_scale (cr, 8.0, 8.0);
 
         scene_object_paint (data->p.w, cr);
         scene_object_paint (data->p.mob, cr);
@@ -96,6 +96,9 @@ static gboolean configure_cb (GtkWidget *widget,
 
     clear_surface (data->surf);
 
+    canvas_draw (data);
+    gtk_widget_queue_draw (widget);
+
     return TRUE;
 }
 
@@ -122,6 +125,14 @@ static surface_destroy (GtkWidget *w, gpointer user_data) {
         cairo_surface_destroy (data->track);
     if (data->surf)
         cairo_surface_destroy (data->surf);
+}
+
+void canvas_clean_track (application_data_t *user_data) {
+    canvasbacken_data_t *data = user_data;
+
+    assert (data);
+
+    clear_surface (data->track);
 }
 
 void canvas_init (GtkWidget *w, application_data_t *data) {

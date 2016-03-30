@@ -11,7 +11,6 @@ typedef struct {
     world_t *w;
     mobile_t *mob;
     steer_control_t *con;
-    
 } application_data_t;
 
 
