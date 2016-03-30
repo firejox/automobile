@@ -142,11 +142,25 @@ int is_mobile_out_of_world(const mobile_t *mob) {
         if (va_len >= mob->radius - AUTOMOBILE_ROUND_ERROR && 
                 vb_len >= mob->radius - AUTOMOBILE_ROUND_ERROR) {
             if (a * b <= AUTOMOBILE_ROUND_ERROR) {
-                if ((c / vc_len) < mob->radius)
+
+
+                if ((c / vc_len) < mob->radius - AUTOMOBILE_ROUND_ERROR) {
+                    //fprintf (stderr, "pos : %lf %lf \n",
+                    //        mob->pos.x, mob->pos.y);
                     return 1;
+                }
             }
-        } else
+        } else {
+            //fprintf (stderr, "seg a: %lf %lf "
+            //            " b: %lf %lf\n",
+            //            segs[i].a.x, segs[i].a.y,
+            //            segs[i].b.x, segs[i].b.y);
+            //fprintf (stderr, "va_len : %lf vb_len : %lf\n"
+            //        "pos : %lf %lf \n",
+            //        va_len, vb_len,
+            //        mob->pos.x, mob->pos.y);
             return 1;
+        }
     }
 
     return 0;
