@@ -23,7 +23,7 @@ void canvas_draw_track (application_data_t *a_data) {
         point_t pos = mobile_get_pos(data->p.mob);
         
         cairo_set_source_rgb (cr, 0.0, 0.0, 1.0);
-        cairo_arc (cr, pos.x, pos.y, 1, 0, 2*M_PI);
+        cairo_arc (cr, pos.x, pos.y, 0.5, 0, 2*M_PI);
         cairo_fill (cr);
 
         cairo_destroy (cr);

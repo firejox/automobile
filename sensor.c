@@ -18,6 +18,10 @@ static void paint (scene_object_t *obj, cairo_t *cr) {
     double theta = mobile_get_toward_theta (sen->mob) + sen->theta;
     const point_t pos = mobile_get_pos(sen->mob);
     double r = sensor_get_distance (sen);
+    
+    if (r == HUGE_VAL)
+        r = 1000.0;
+
     double rx = r * cos(theta);
     double ry = r * sin(theta);
 
@@ -115,13 +119,7 @@ double sensor_get_distance(const sensor_t *sensor) {
         }
     }
 
-    if (dist == HUGE_VAL) {
-        fprintf (stderr, "theta : %lf\n", theta);
-        fprintf (stderr, "pos : %lf %lf\n", mob_pos.x, mob_pos.y);
-    
-    }
-
-    return (dist == HUGE_VAL) ? 1000.0 : dist;
+    return dist;
 }
 
 void sensor_destroy(sensor_t *sensor) {

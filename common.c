@@ -13,11 +13,12 @@ int is_double_equal(double a, double b) {
 }
 
 double radian_to_degree(double radian, double min_lim) {
-    double mod = fmod (radian, M_PI);
+    double mod = fmod (radian, M_PI * 2);
 
     if (mod < min_lim)
-        mod += M_PI * 2.0;
-    
+        mod += M_PI * 2;
+    if (mod > min_lim + M_PI * 2)
+        mod -= M_PI * 2;
 
     return mod / M_PI * 180.0;
 }

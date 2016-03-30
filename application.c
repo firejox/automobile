@@ -50,7 +50,7 @@ void application_init (GtkApplication *app, void *user_data) {
     gtk_container_add (GTK_CONTAINER(window), box);
 
     b_data->darea = gtk_drawing_area_new ();
-    gtk_widget_set_size_request (b_data->darea, 100, 100);
+    //gtk_widget_set_size_request (b_data->darea, 100, 100);
     gtk_box_pack_start (GTK_BOX(box), b_data->darea, TRUE, TRUE, 0);
 
     canvas_init (b_data->darea, b_data);
@@ -61,7 +61,7 @@ void application_init (GtkApplication *app, void *user_data) {
 
     gtk_box_set_homogeneous (GTK_BOX(bbox), TRUE);
     set_mobile_info(GTK_BUTTON_BOX(bbox), b_data);
-    gtk_box_pack_start (GTK_BOX(box), bbox, TRUE, TRUE, 0);
+    gtk_box_pack_start (GTK_BOX(box), bbox, FALSE, FALSE, 0);
 
     gtk_widget_add_tick_callback(box, update, b_data, xfree);
 
@@ -236,9 +236,6 @@ static void manual_change_mobile_x (GtkWidget *w, gpointer data) {
 
     mobile_set_pos (b_data->p.mob, new_pos);
 
-    if (is_mobile_out_of_world (b_data->p.mob)) 
-        mobile_set_pos (b_data->p.mob, pos);
-
     mobile_info_update(b_data);
 }
 
@@ -253,9 +250,6 @@ static void manual_change_mobile_y (GtkWidget *w, gpointer data) {
     };
 
     mobile_set_pos (b_data->p.mob, new_pos);
-
-    if (is_mobile_out_of_world (b_data->p.mob)) 
-        mobile_set_pos (b_data->p.mob, pos);
 
     mobile_info_update(b_data);
 }
