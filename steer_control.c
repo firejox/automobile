@@ -70,7 +70,7 @@ double steer_control_get_angle (const steer_control_t *con) {
     double dist[3], fuzzy_val[3], fuzzy_val2[3];
     double fire_str[3];
     double result[3] = {M_PI * 2.0 / 9.0,
-            M_PI/ 9, -M_PI * 2.0 / 9.0};
+            M_PI / 4.5, -M_PI * 2.0 / 9.0};
 
     
 
@@ -97,8 +97,12 @@ double steer_control_get_angle (const steer_control_t *con) {
                     fuzzy_and(fuzzy_val[0], fuzzy_val[2]))
                 );
 
-    result[1] *= 1 - 2 * signbit(fuzzy_val[0] * fuzzy_val2[2] 
-            - fuzzy_val[2]*fuzzy_val2[0]);
+    double tmp = fuzzy_val[0] * fuzzy_val2[2] - 
+        fuzzy_val[2] * fuzzy_val2[0];
+    if (is_double_equal(tmp, 0.0))
+        tmp = 0.0;
+    result[1] *= copysign (1 - fabs(tmp), tmp);
+    //fprintf (stderr, "fuzzy diff : %lf\n", tmp);
 
 
     /* right * angle 40 */
@@ -108,12 +112,12 @@ double steer_control_get_angle (const steer_control_t *con) {
     double fire_sum = 0.0;
 
     for (int i = 0; i < 3; i++) {
-        fprintf (stderr, "fire_str %d : %lf dist : %lf result %lf\n", i,
-                fire_str[i], dist[i], fire_str[i] * result[i]);
+        //fprintf (stderr, "fire_str %d : %lf dist : %lf result %lf\n", i,
+        //        fire_str[i], dist[i], fire_str[i] * result[i]);
         fire_sum += fire_str[i];
         re += fire_str[i] * result[i];
     }
-    fprintf (stderr, "\n");
+    //fprintf (stderr, "\n");
     
     return (is_double_equal(fire_sum, 0.0)) ? 0.0: re / fire_sum;
 }
