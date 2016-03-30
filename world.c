@@ -30,6 +30,7 @@ static void paint (scene_object_t *obj, cairo_t *cr) {
     cairo_save (cr);
     cairo_set_line_width (cr, 1.0);
     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+    cairo_set_line_cap (cr, CAIRO_LINE_CAP_ROUND);
   
     VECTOR_FOR_EACH(segment_t) (w->segments, wall_paint, cr);
 
