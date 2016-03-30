@@ -8,13 +8,13 @@ int main(int argc, char **argv) {
     application_data_t data;
 
     double segs[][4] = {
-        {-6, -3, -6, 22},
+        {-6, 0, -6, 22},
         {-6, 22, 18, 22},
         {18, 22, 18, 37},
         {30, 37, 30, 10}, 
         {30, 10, 6, 10},
-        {6, 10, 6, -3},
-        {6, -3, -6, -3}
+//        {6, -3, -6, -3},
+        {6, 10, 6, 0}
     };
 
     {
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
         data.mob = mobile_create (data.w, pos, 3.0, M_PI_2);
         data.con = steer_control_create (data.mob);
 
-        for (int i= 0; i < 7; i++) {
+        for (int i= 0; i < (sizeof(segs)/sizeof(segs[0])); i++) {
             segment_t seg = {
                 .a = { segs[i][0], segs[i][1] },
                 .b = { segs[i][2], segs[i][3] }
