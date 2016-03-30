@@ -18,10 +18,12 @@ void canvas_draw_track (application_data_t *a_data) {
 
     if (data->track) {
         cairo_t *cr = cairo_create(data->track);
+        cairo_translate (cr, 100, 100);
+        cairo_scale (cr, 5.0, 5.0);
         point_t pos = mobile_get_pos(data->p.mob);
         
-        cairo_set_source_rgb (cr, 0.8, 0.7, 0.1);
-        cairo_arc (cr, pos.x, pos.y, 0.3, 0, 2*M_PI);
+        cairo_set_source_rgb (cr, 0.0, 0.0, 1.0);
+        cairo_arc (cr, pos.x, pos.y, 1, 0, 2*M_PI);
         cairo_fill (cr);
 
         cairo_destroy (cr);
@@ -37,16 +39,18 @@ void canvas_draw (application_data_t *a_data) {
 
     if (data->surf) {
         cairo_t *cr = cairo_create(data->surf);
-
         cairo_save (cr);
         cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
         cairo_paint (cr);
         cairo_restore (cr);
 
-        cairo_translate (cr, 10.0, 10.0);
+        cairo_translate (cr, 100.0, 300.0);
 
-        cairo_set_source_surface(cr, data->track, 0.0, 0.0);
+        cairo_scale (cr, 1.0, -1.0);
+        cairo_set_source_surface(cr, data->track, -100.0, -100.0);
         cairo_paint (cr);
+
+        cairo_scale (cr, 5.0, 5.0);
 
         scene_object_paint (data->p.w, cr);
         scene_object_paint (data->p.mob, cr);
@@ -99,7 +103,7 @@ static void draw_widget (GtkWidget *w, cairo_t *cr, gpointer user_data) {
     canvasbacken_data_t *data = user_data;
 
     cairo_save (cr);
-    cairo_scale (cr, 5.0, 5.0);
+    //cairo_scale (cr, 1.0, 1.0);
     cairo_set_source_surface (cr, data->surf, 0.0, 0.0);
     cairo_paint (cr);
 

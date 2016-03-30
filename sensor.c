@@ -121,7 +121,7 @@ double sensor_get_distance(const sensor_t *sensor) {
     
     }
 
-    return dist;
+    return (dist == HUGE_VAL) ? 1000.0 : dist;
 }
 
 void sensor_destroy(sensor_t *sensor) {

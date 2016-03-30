@@ -158,16 +158,16 @@ static gboolean update (GtkWidget *widget, GdkFrameClock *frame,
     gint64 cur_clock = gdk_frame_clock_get_frame_time (frame);
     appbakend_data_t *data = user_data;
 
-    if (data->clock + 1000 <= cur_clock) {
+    if (data->clock + 100000 <= cur_clock) {
         if (world_get_state(data->p.w) == WORLD_TIME_RUNNING) {
+            point_t pos = mobile_get_pos (data->p.mob);
 
-            if (is_mobile_out_of_world(data->p.mob)) {
+            if (is_mobile_out_of_world(data->p.mob) || pos.y > 37.0) {
                 gtk_toggle_button_set_active (data->start_stop_btn, FALSE);
-                point_t pos = mobile_get_pos (data->p.mob);
 
                 fprintf (stderr, "x : %lf y: %lf\n", pos.x, pos.y);
             }
-            else 
+            else
                 mobile_update (data->p.mob,
                         steer_control_get_angle, data->p.con);
 
