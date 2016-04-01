@@ -208,7 +208,7 @@ static void mobile_info_update (appbakend_data_t *data) {
     snprintf (s, sizeof (s), "%lf", pos.y);
     gtk_entry_set_text (data->y, s);
 
-    snprintf (s, sizeof (s), "%lf",
+    snprintf (s, sizeof (s), "%lf\u00B0",
             radian_to_degree(
                 mobile_get_toward_theta(data->p.mob), -M_PI_2));
     gtk_entry_set_text (data->theta, s);
@@ -229,7 +229,7 @@ static void mobile_info_update (appbakend_data_t *data) {
             sensor_get_distance(sens[2]));
     gtk_label_set_text (data->sensor[2], s);
 
-    snprintf (s, sizeof (s), "steer angle : %lf",
+    snprintf (s, sizeof (s), "steer angle : %lf\u00B0",
             radian_to_degree(
                 steer_control_get_angle(data->p.con), -M_PI_2));
     gtk_label_set_text (data->steer_angle, s);
