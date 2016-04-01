@@ -1,0 +1,5 @@
+\usepackage[encapsulated]{CJK}
+\usepackage{ucs}
+
+\let\Oldauthor\author
+\renewcommand{\author}[1]{\Oldauthor{\begin{CJK}{UTF8}{bkai}#1\end{CJK}}}

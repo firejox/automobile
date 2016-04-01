@@ -24,6 +24,21 @@ add_executable (auto_mobile
     mobile.c mobile.h
     )
 
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/report.pdf
+    COMMAND pandoc 
+            ${CMAKE_CURRENT_SOURCE_DIR}/doc/report.md
+            -s
+            -H ${CMAKE_CURRENT_SOURCE_DIR}/doc/header.tex
+            -o ${CMAKE_CURRENT_SOURCE_DIR}/doc/report.pdf
+    DEPENDS  ${CMAKE_CURRENT_SOURCE_DIR}/doc/report.md
+            ${CMAKE_CURRENT_SOURCE_DIR}/doc/header.tex
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc
+    )
+
+add_custom_target(Document ALL DEPENDS 
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/report.pdf)
+
 
 target_include_directories (auto_mobile 
     PRIVATE ${CAIRO_INCLUDE_DIRS}
