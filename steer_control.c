@@ -50,15 +50,16 @@ static inline double fuzzy_not (double a) {
     return 1.0 - a;
 }
 
+#define YAGER   M_SQRT2
 static inline double fuzzy_and (double a, double b) {
-    return a*b;
+    return 1 - fmin(1.0,
+            pow(pow(1.0-a, YAGER) + pow(1.0-b, YAGER), 1.0 / YAGER));
 }
 
 static inline double fuzzy_or (double a, double b) {
-    return a+b-a*b;
+    return fmin (1.0,
+            pow(pow(a, YAGER) + pow(b, YAGER), 1.0 / YAGER));
 }
-
-static double seg_pt[] = {3, 6};
 
 
 double steer_control_get_angle (const steer_control_t *con) {
@@ -70,13 +71,13 @@ double steer_control_get_angle (const steer_control_t *con) {
     double dist[3], fuzzy_val[3], fuzzy_val2[3];
     double fire_str[3];
     double result[3] = {M_PI * 2.0 / 9.0,
-            M_PI / 4.5, -M_PI * 2.0 / 9.0};
+            M_PI / 9.0, -M_PI * 2.0 / 9.0};
 
     
 
     for (int i = 0; i < 3; i++) {
         dist[i] = sensor_get_distance (sen[i]);
-        fuzzy_val2[i] = erf(log(fmax(dist[i], r) / r)); 
+        fuzzy_val2[i] = tanh(pow(log(fmax(dist[i], r) / r), 2.0)); 
         fuzzy_val[i] = r / fmax(dist[i], r);
     }
 
@@ -89,7 +90,6 @@ double steer_control_get_angle (const steer_control_t *con) {
     /* left * angle -40 */
     fire_str[0] = fuzzy_and(fuzzy_val[0], fuzzy_val2[2]);
 
-
     /* mid and ((left and right) or (not left and not right)) */
     fire_str[1] = fuzzy_and(fuzzy_val[1],
                 fuzzy_or(
@@ -101,7 +101,7 @@ double steer_control_get_angle (const steer_control_t *con) {
         fuzzy_val[2] * fuzzy_val2[0];
     if (is_double_equal(tmp, 0.0))
         tmp = 0.0;
-    result[1] *= copysign (1 - fabs(tmp), tmp);
+    result[1] *= copysign (1, tmp);
     //fprintf (stderr, "fuzzy diff : %lf\n", tmp);
 
 
