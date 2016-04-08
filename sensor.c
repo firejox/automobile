@@ -84,10 +84,11 @@ double sensor_get_distance(const sensor_t *sensor) {
         const vector2d_t va = vector2d_gen_by_point(mob_pos, segs[i].a);
         const vector2d_t vb = vector2d_gen_by_point(mob_pos, segs[i].b);
 
-        //if ((va.entry[0] * arr[0] + va.entry[1] * arr[1]) < 0.0)
-        //    continue;
-        //if ((vb.entry[0] * arr[0] + vb.entry[1] * arr[1]) < 0.0)
-        //    continue;
+        if (((va.entry[0] * arr[0] + va.entry[1] * arr[1]) 
+                < -AUTOMOBILE_ROUND_ERROR) &&
+                ((vb.entry[0] * arr[0] + vb.entry[1] * arr[1]) 
+                    < -AUTOMOBILE_ROUND_ERROR))
+                continue;
 
         const double mat[2][2] = {{va.entry[0], vb.entry[0]},
             {va.entry[1], vb.entry[1]}};
@@ -102,7 +103,8 @@ double sensor_get_distance(const sensor_t *sensor) {
             const double b = invm[1][0] * arr[0] + invm[1][1] * arr[1];
             const double c = a + b;
 
-            if (a > -AUTOMOBILE_ROUND_ERROR && b > - AUTOMOBILE_ROUND_ERROR) {
+            if (a > -AUTOMOBILE_ROUND_ERROR && 
+                    b > -AUTOMOBILE_ROUND_ERROR) {
                 dist = fmin (dist, 
                         hypot(mat[0][0]*a/c + mat[0][1]*b/c, 
                             mat[1][0]*a/c + mat[1][1]*b/c));
