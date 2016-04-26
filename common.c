@@ -4,9 +4,15 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "common.h"
 #include <math.h>
+
+double runif(void) {
+    return ((double)rand() / (RAND_MAX + 1.0));
+}
+
 
 int is_double_equal(double a, double b) {
     return fabs(a - b) < AUTOMOBILE_ROUND_ERROR; 
@@ -49,7 +55,9 @@ void *xcalloc (size_t num, size_t sz) {
 void *xrealloc (void *ptr, size_t sz) {
     void *tmp = realloc(ptr, sz);
 
+
     if (tmp == NULL) {
+        fprintf (stderr, "%u\n", sz);
         perror("xrealloc failed : ");
 
         assert(tmp);

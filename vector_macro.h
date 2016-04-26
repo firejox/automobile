@@ -9,7 +9,9 @@
 #define VECTOR_APPEND(TYPE) vector_##TYPE##_append
 #define VECTOR_GET_ARRAY(TYPE) vector_##TYPE##_get_array
 #define VECTOR_GET_SIZE(TYPE) vector_##TYPE##_get_size
+#define VECTOR_ASSIGN(TYPE) vector_##TYPE##_assign
 #define VECTOR_FOR_EACH(TYPE) vector_##TYPE##_for_each
+#define VECTOR_CLEAR(TYPE) vector_##TYPE##_clear
 
 #define VECTOR_MODULE_DEC(TYPE)                                         \
     typedef struct _vector_##TYPE VECTOR(TYPE);                         \
@@ -17,10 +19,12 @@
     VECTOR(TYPE) *VECTOR_CREATE(TYPE)(void);                            \
     void VECTOR_DESTROY(TYPE)(VECTOR(TYPE)*);                           \
     size_t VECTOR_GET_SIZE(TYPE)(const VECTOR(TYPE) *);                 \
-    const TYPE* VECTOR_GET_ARRAY(TYPE)(const VECTOR(TYPE) *);          \
+    const TYPE* VECTOR_GET_ARRAY(TYPE)(const VECTOR(TYPE) *);           \
     void VECTOR_FOR_EACH(TYPE)(const VECTOR(TYPE) *,                    \
             VECTOR_CALLBACK(TYPE), void *);                             \
-    void VECTOR_APPEND(TYPE)(VECTOR(TYPE) *, TYPE);
+    void VECTOR_APPEND(TYPE)(VECTOR(TYPE) *, TYPE);                     \
+    void VECTOR_ASSIGN(TYPE)(VECTOR(TYPE) *, size_t, TYPE);             \
+    void VECTOR_CLEAR(TYPE) (VECTOR(TYPE) *);                           \
     
    
 #define VECTOR_MODULE_DEF(TYPE, DESTROY_FUNC)                           \
@@ -31,8 +35,8 @@
     };                                                                  \
     VECTOR(TYPE) *VECTOR_CREATE(TYPE)(void) {                           \
         VECTOR(TYPE) *tmp;                                              \
-        tmp = xmalloc (sizeof (VECTOR(TYPE)) + sizeof(TYPE) * 32);      \
-        tmp->alloc_sz = 32;                                             \
+        tmp = xmalloc (sizeof (VECTOR(TYPE)) + sizeof(TYPE) * 64);      \
+        tmp->alloc_sz = 64;                                             \
         tmp->sz = 0;                                                    \
         return tmp;                                                     \
     }                                                                   \
@@ -76,6 +80,16 @@
                                                                         \
             vec->arr[vec->sz] = t;                                      \
             vec->sz++;                                                  \
+        }                                                               \
+    }                                                                   \
+    void VECTOR_ASSIGN(TYPE) (VECTOR(TYPE) *vec, size_t idx, TYPE t) {  \
+        if (vec != NULL && idx < vec->sz) {                             \
+            vec->arr[idx] = t;                                          \
+        }                                                               \
+    }                                                                   \
+    void VECTOR_CLEAR(TYPE) (VECTOR(TYPE) *vec) {                       \
+        if (vec != NULL) {                                              \
+            vec->sz = 0;                                                \
         }                                                               \
     }
 
